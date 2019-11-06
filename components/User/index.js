@@ -1,5 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Animated, TouchableWithoutFeedback } from 'react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Dimensions,
+  Animated,
+  PanResponder,
+  TouchableWithoutFeedback,
+  Alert,
+} from 'react-native';
 import {
   UserContainer,
   Thumbnail,
@@ -12,9 +18,35 @@ import {
   HeartIcon,
 } from './styles';
 
+const { width } = Dimensions.get('window');
+
 export default ({ user, onPress }) => {
   const [opacity] = useState(new Animated.Value(0));
   const [offset] = useState(new Animated.ValueXY({ x: 0, y: 50 }));
+
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onPanResponderTerminationRequest: () => false,
+
+        onMoveShouldSetPanResponder: () => true,
+
+        onPanResponderMove: Animated.event([null, { dx: offset.x }]),
+
+        onPanResponderRelease: () => {
+          if (offset.x._value < -200) {
+            Alert.alert('Deleted');
+          }
+
+          Animated.spring(offset.x, { toValue: 0, bounciness: 10 }).start();
+        },
+
+        onPanResponderTerminate: () => {
+          Animated.spring(offset.x, { toValue: 0, bounciness: 10 }).start();
+        },
+      }),
+    [offset.x]
+  );
 
   useEffect(() => {
     Animated.parallel([
@@ -25,7 +57,21 @@ export default ({ user, onPress }) => {
 
   return (
     <Animated.View
-      style={[{ transform: [...offset.getTranslateTransform()] }, { opacity }]}
+      {...panResponder.panHandlers}
+      style={[
+        {
+          transform: [
+            ...offset.getTranslateTransform(),
+            {
+              rotateZ: offset.x.interpolate({
+                inputRange: [-width, width],
+                outputRange: ['-50deg', '50deg'],
+              }),
+            },
+          ],
+        },
+        { opacity },
+      ]}
     >
       <TouchableWithoutFeedback onPress={onPress}>
         <UserContainer>
