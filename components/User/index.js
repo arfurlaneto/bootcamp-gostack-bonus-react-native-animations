@@ -49,7 +49,7 @@ export default ({ user, onPress }) => {
           Animated.spring(offset.x, { toValue: 0, bounciness: 10 }).start();
         },
       }),
-    [offset.x]
+    [offset]
   );
 
   useEffect(() => {
