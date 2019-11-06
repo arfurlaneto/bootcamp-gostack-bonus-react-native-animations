@@ -1,7 +1,7 @@
 import { Platform, Animated } from 'react-native';
 import styled from 'styled-components';
 
-export const Container = styled.View`
+export const Container = styled(Animated.View)`
   flex: 1;
 `;
 
@@ -12,7 +12,7 @@ export const Header = styled(Animated.View)`
   background: #2e93e5;
 `;
 
-export const HeaderImage = styled.Image`
+export const HeaderImage = styled(Animated.Image)`
   position: absolute;
   left: 0;
   right: 0;
@@ -21,7 +21,8 @@ export const HeaderImage = styled.Image`
 `;
 
 export const HeaderText = styled(Animated.Text)`
-  font-weight: 900;
+  font-size: 24px;
+  font-weight: bold;
   color: #fff;
   background: transparent;
   position: absolute;
