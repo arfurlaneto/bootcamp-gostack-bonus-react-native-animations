@@ -29,13 +29,17 @@ export default ({ user, onPress }) => {
       PanResponder.create({
         onPanResponderTerminationRequest: () => false,
 
-        onMoveShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: (e, gestureState) => {
+          return (
+            Math.abs(gestureState.dx) >= 30 || Math.abs(gestureState.dy) >= 30
+          );
+        },
 
         onPanResponderMove: Animated.event([null, { dx: offset.x }]),
 
         onPanResponderRelease: () => {
           if (offset.x._value < -200) {
-            Alert.alert('Deleted');
+            Alert.alert('Deleted!');
           }
 
           Animated.spring(offset.x, { toValue: 0, bounciness: 10 }).start();
@@ -53,7 +57,14 @@ export default ({ user, onPress }) => {
       Animated.timing(opacity, { toValue: 1, duration: 500 }),
       Animated.spring(offset.y, { toValue: 0, speed: 5, bounciness: 20 }),
     ]).start();
-  }, [offset.y, opacity]);
+
+    return () => {
+      Animated.parallel([
+        Animated.timing(opacity, { toValue: 0, duration: 500 }),
+        Animated.spring(offset.y, { toValue: 0, speed: 5, bounciness: 20 }),
+      ]).start();
+    };
+  });
 
   return (
     <Animated.View

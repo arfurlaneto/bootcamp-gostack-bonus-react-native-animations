@@ -1,11 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import {
-  Dimensions,
-  Animated,
-  View,
-  StatusBar,
-  ScrollView,
-} from 'react-native';
+import { Dimensions, Animated, StatusBar, ScrollView } from 'react-native';
 import { Container, Header, HeaderImage, HeaderText } from './styles';
 
 import User from '../User';
@@ -26,22 +20,30 @@ export default () => {
       setUserSelected(user);
 
       Animated.sequence([
+        Animated.timing(scrollOffset, { toValue: 0, duration: 300 }),
         Animated.timing(listProgress, { toValue: 100, duration: 300 }),
         Animated.timing(userInfoProgress, { toValue: 100, duration: 500 }),
       ]).start(() => {
         setUserInfoVisible(true);
       });
     },
-    [listProgress, userInfoProgress]
+    [listProgress, scrollOffset, userInfoProgress]
   );
 
+  const deselectUser = useCallback(() => {
+    setUserInfoVisible(false);
+
+    Animated.sequence([
+      Animated.timing(userInfoProgress, { toValue: 0, duration: 500 }),
+      Animated.timing(listProgress, { toValue: 0, duration: 300 }),
+    ]).start(() => {
+      setUserSelected(null);
+    });
+  }, [listProgress, userInfoProgress]);
+
   const renderDetail = useCallback(
-    () => (
-      <View>
-        <User user={userSelected} onPress={() => {}} />
-      </View>
-    ),
-    [userSelected]
+    () => <User user={userSelected} onPress={deselectUser} />,
+    [deselectUser, userSelected]
   );
 
   const renderList = useCallback(
@@ -121,7 +123,7 @@ export default () => {
             },
           ]}
         >
-          GoNative
+          GoStack-NativeAnimations
         </HeaderText>
 
         <HeaderText
