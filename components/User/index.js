@@ -1,5 +1,5 @@
-import React from 'react';
-import { TouchableWithoutFeedback } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Animated, TouchableWithoutFeedback } from 'react-native';
 import {
   UserContainer,
   Thumbnail,
@@ -13,22 +13,36 @@ import {
 } from './styles';
 
 export default ({ user, onPress }) => {
-  return (
-    <TouchableWithoutFeedback onPress={onPress}>
-      <UserContainer>
-        <Thumbnail source={{ uri: user.thumbnail }} />
+  const [opacity] = useState(new Animated.Value(0));
+  const [offset] = useState(new Animated.ValueXY({ x: 0, y: 50 }));
 
-        <InfoContainer color={user.color}>
-          <BioContainer>
-            <Name>{user.name.toUpperCase()}</Name>
-            <Description>{user.description}</Description>
-          </BioContainer>
-          <LikesContainer>
-            <HeartIcon />
-            <Likes>{user.likes}</Likes>
-          </LikesContainer>
-        </InfoContainer>
-      </UserContainer>
-    </TouchableWithoutFeedback>
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(opacity, { toValue: 1, duration: 500 }),
+      Animated.spring(offset.y, { toValue: 0, speed: 5, bounciness: 20 }),
+    ]).start();
+  }, [offset.y, opacity]);
+
+  return (
+    <Animated.View
+      style={[{ transform: [...offset.getTranslateTransform()] }, { opacity }]}
+    >
+      <TouchableWithoutFeedback onPress={onPress}>
+        <UserContainer>
+          <Thumbnail source={{ uri: user.thumbnail }} />
+
+          <InfoContainer color={user.color}>
+            <BioContainer>
+              <Name>{user.name.toUpperCase()}</Name>
+              <Description>{user.description}</Description>
+            </BioContainer>
+            <LikesContainer>
+              <HeartIcon />
+              <Likes>{user.likes}</Likes>
+            </LikesContainer>
+          </InfoContainer>
+        </UserContainer>
+      </TouchableWithoutFeedback>
+    </Animated.View>
   );
 };
